@@ -1,0 +1,50 @@
+﻿@page "/MediaQuery"
+@using Blazor.Essentials.MediaQuery
+
+@implements IAsyncDisposable
+@inject IMediaQuery _mediaQuery
+
+<h1>Media Query</h1>
+
+<h3>Is Supported: @_isSupported</h3>
+
+@if (_mediaQueryList != null)
+{
+    <h3>Query "@_mediaQueryList.Media" matched: @_mediaQueryList.Matches</h3>
+}
+
+<h3>Query "(max-width: 600px)" matched: @_matched</h3>
+
+<button @onclick="Check">Check Media Query</button>
+
+@code
+{
+    MediaQueryList _mediaQueryList;
+    bool _matched = false;
+    bool _isSupported = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _isSupported = await _mediaQuery.IsSupportedAsync();
+
+        _mediaQuery.Notification += QueryChange;
+        await _mediaQuery.ObserveAsync(new[] { "(max-width: 600px)", "(max-width: 800px)" });
+    }
+
+    private async Task Check()
+    {
+        _matched = await _mediaQuery.IsMatchedAsync("(max-width: 600px)");
+    }
+
+    public void QueryChange(object sender, MediaQueryList query)
+    {
+        _mediaQueryList = query;
+        StateHasChanged();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        _mediaQuery.Notification -= QueryChange;
+        await _mediaQuery.DisposeAsync();
+    }
+}

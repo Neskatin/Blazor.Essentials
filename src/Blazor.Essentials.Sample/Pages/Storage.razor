@@ -1,0 +1,110 @@
+﻿@page "/Storage"
+@using Blazor.Essentials.Storage
+@using Blazor.Essentials.Sample.Models
+
+@implements IAsyncDisposable
+@inject ISessionStorage _sessionStorage
+@inject ILocalStorage _localStorage
+
+<h1>Storage</h1>
+
+<h3>Is Session Storage Supported: @_sessionStorageSupported</h3>
+<h3>Is Local Storage Supported: @_localStorageSupported</h3>
+
+<h3>Session Storage Example</h3>
+@if (_sessionModel != null)
+{
+    <p>@_sessionModel.Message</p>
+    <p>@_sessionModel.Number</p>
+}
+
+<button @onclick="SetItemToSession">Set Item</button>
+<button @onclick="GetItemToSession">Get the Item</button>
+<button @onclick="RemoveItemToSession">Remove Item</button>
+<button @onclick="ClearSession">Clear storage</button>
+
+<h3>Local Storage Example</h3>
+@if (_localModel != null)
+{
+    <p>@_localModel.Message</p>
+    <p>@_localModel.Number</p>
+}
+
+<button @onclick="SetItemToLocal">Set Item</button>
+<button @onclick="GetItemToLocal">Get the Item</button>
+<button @onclick="RemoveItemToLocal">Remove Item</button>
+<button @onclick="ClearLocal">Clear storage</button>
+
+@code
+{
+    bool _sessionStorageSupported = false;
+    bool _localStorageSupported = false;
+
+    TestModel _localModel;
+    TestModel _sessionModel;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _sessionStorageSupported = await _sessionStorage.IsSupportedAsync();
+        _localStorageSupported = await _localStorage.IsSupportedAsync();
+    }
+
+    public async Task SetItemToSession()
+    {
+        await _sessionStorage.SetItemAsync("SessionItem", new TestModel()
+        {
+            Message = "This is a Test Model",
+            Number = 1
+        });
+    }
+
+    public async Task SetItemToLocal()
+    {
+        await _localStorage.SetItemAsync("LocalItem", new TestModel()
+        {
+            Message = "This is a Test Model",
+            Number = 1
+        });
+    }
+
+    public async Task GetItemToSession()
+    {
+        _sessionModel = await _sessionStorage.GetItemAsync<TestModel>("SessionItem");
+    }
+
+    public async Task GetItemToLocal()
+    {
+        _localModel = await _localStorage.GetItemAsync<TestModel>("LocalItem");
+    }
+
+    public async Task RemoveItemToSession()
+    {
+        await _sessionStorage.RemoveItemAsync("SessionItem");
+        _sessionModel = null;
+    }
+
+    public async Task RemoveItemToLocal()
+    {
+        await _localStorage.RemoveItemAsync("LocalItem");
+        _localModel = null;
+    }
+
+    public async Task ClearSession()
+    {
+        await _sessionStorage.ClearAsync();
+        _sessionModel = null;
+    }
+
+    public async Task ClearLocal()
+    {
+        await _localStorage.ClearAsync();
+        _localModel = null;
+    }
+
+
+    public async ValueTask DisposeAsync()
+    {
+        await _sessionStorage.DisposeAsync();
+        await _localStorage.DisposeAsync();
+    }
+}

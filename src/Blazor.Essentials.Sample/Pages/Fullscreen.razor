@@ -1,0 +1,53 @@
+﻿@page "/Fullscreen"
+@using Blazor.Essentials.Fullscreen
+
+@implements IAsyncDisposable
+@inject IFullscreen _fullscreen
+
+<h1>Fullscreen</h1>
+
+<h3>Is Supported: @_isSupported</h3>
+
+<button @onclick="RequestFullscreen">Request Fullscreen</button>
+<button @onclick="RequestByElementFullscreen">Request Element Fullscreen</button>
+<button @onclick="ExitFullscreen">Exit Fullscreen</button>
+<button @onclick="ToggleFullscreen">Toggle Fullscreen</button>
+
+<div id="TestElement" style="background-color: #fff;">
+    Hallo World!
+</div>
+
+@code
+{
+    bool _isSupported = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _isSupported = await _fullscreen.IsSupportedAsync();
+    }
+
+    private async Task RequestFullscreen()
+    {
+        await _fullscreen.RequestDocumentFullscreenAsync();
+    }
+
+    private async Task RequestByElementFullscreen()
+    {
+        await _fullscreen.RequestElementFullscreenAsync("TestElement");
+    }
+
+    private async Task ExitFullscreen()
+    {
+        await _fullscreen.ExitFullscreenAsync();
+    }
+
+    private async Task ToggleFullscreen()
+    {
+        await _fullscreen.ToggleDocumentFullscreenAsync();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await _fullscreen.DisposeAsync();
+    }
+}

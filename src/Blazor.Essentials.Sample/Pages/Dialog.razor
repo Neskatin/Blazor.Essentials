@@ -1,0 +1,42 @@
+﻿@page "/Dialog"
+@using Blazor.Essentials.Dialog
+
+@implements IAsyncDisposable
+@inject IDialog _dialog
+
+<h1>Dialog</h1>
+
+<h3>Is Confirmed: @_confirmed</h3>
+
+<button @onclick="Confirm">Confirm it!</button>
+
+<h3>Is Prompt: @_prompt</h3>
+
+<button @onclick="Prompt">Prompt it!</button>
+<button @onclick="PromptWithDefault">Prompt it with default!</button>
+
+@code
+{
+    bool _confirmed = false;
+    string _prompt = string.Empty;
+
+    public async Task Confirm()
+    {
+        _confirmed = await _dialog.ConfirmAsync("You're sure?");
+    }
+
+    public async Task Prompt()
+    {
+        _prompt = await _dialog.PromptAsync("Enter some value");
+    }
+
+    public async Task PromptWithDefault()
+    {
+        _prompt = await _dialog.PromptAsync("Enter some value", "This is the default");
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await _dialog.DisposeAsync();
+    }
+}
